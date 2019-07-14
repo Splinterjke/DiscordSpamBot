@@ -15,6 +15,7 @@ namespace DiscordSpamBot
     {
         private DiscordClient client;
         private string token;
+        private string message;
         private List<DiscordGuild> guilds;
 
         static void Main(string[] args)
@@ -52,6 +53,13 @@ namespace DiscordSpamBot
                     ConsoleLog("error: invalid token");
                     return;
                 }
+
+                if (!cfgJson.ContainsKey("message") || string.IsNullOrEmpty(cfgJson["message"]?.ToString()))
+                {
+                    ConsoleLog("error: message value is empty or not found");
+                    return;
+                }
+                message = cfgJson["message"].ToString();
 
                 client = new DiscordClient(new DiscordConfiguration
                 {
@@ -110,7 +118,7 @@ namespace DiscordSpamBot
                     {
                         var dmChannel = await client.CreateDmAsync(members[j]);
                         var msg = new string(Enumerable.Repeat(pool, 5).Select(s => s[random.Next(s.Length)]).ToArray());
-                        await dmChannel.SendMessageAsync("https://discord.gg/nHUZYVd" + $"\n{msg}");
+                        await dmChannel.SendMessageAsync(message + $"\n{msg}");
                         await dmChannel.DeleteAsync();
                         await Task.Delay(TimeSpan.FromSeconds(3));
                     }
